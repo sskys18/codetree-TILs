@@ -1,4 +1,8 @@
 def is_happy_sequence(seq, m):
+    # m이 1이면 모든 수열이 행복한 수열
+    if m == 1:
+        return True
+    
     count = 1
     for i in range(1, len(seq)):
         if seq[i] == seq[i-1]:
