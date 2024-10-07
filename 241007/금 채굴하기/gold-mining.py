@@ -1,35 +1,36 @@
-# 입력받기
-n, m = map(int, input().split())
-grid = [list(map(int, input().split())) for _ in range(n)]
+# 변수 선언 및 입력
+n, m = tuple(map(int, input().split()))
+grid = [
+    list(map(int, input().split()))
+    for _ in range(n)
+]
 
-# 채굴에 드는 비용을 계산하는 함수
-def mining_cost(k):
+
+# 주어진 k에 대하여 마름모의 넓이를 반환합니다.
+def get_area(k):
     return k * k + (k + 1) * (k + 1)
 
-# 주어진 중심점 (x, y)와 반경 k에 대한 마름모 내 금의 개수를 계산하는 함수
-def count_gold_in_diamond(x, y, k):
-    total_gold = 0
-    for i in range(-k, k + 1):
-        for j in range(-(k - abs(i)), k - abs(i) + 1):
-            nx, ny = x + i, y + j
-            if 0 <= nx < n and 0 <= ny < n:
-                total_gold += grid[nx][ny]
-    return total_gold
 
-# 최대로 얻을 수 있는 금의 개수
+# 주어진 k에 대하여 채굴 가능한 금의 개수를 반환합니다.
+def get_num_of_gold(row, col, k):
+    return sum([
+        grid[i][j]
+        for i in range(n)
+        for j in range(n)
+        if abs(row - i) + abs(col - j) <= k
+    ])
+
+
 max_gold = 0
 
-# 각 좌표를 중심으로 마름모 모양을 그리고, 그 안의 금의 개수를 계산
-for x in range(n):
-    for y in range(n):
-        k = 0
-        while True:
-            cost = mining_cost(k)
-            gold_count = count_gold_in_diamond(x, y, k)
-            if cost > gold_count * m:
-                break
-            max_gold = max(max_gold, gold_count)
-            k += 1
+# 격자의 각 위치가 마름모의 중앙일 때 채굴 가능한 금의 개수를 구합니다.
+for row in range(n):
+    for col in range(n):
+        for k in range(2 * (n - 1) + 1):
+            num_of_gold = get_num_of_gold(row, col, k)
+            
+            # 손해를 보지 않으면서 채굴할 수 있는 최대 금의 개수를 저장합니다.
+            if num_of_gold * m >= get_area(k):
+                max_gold = max(max_gold, num_of_gold)
 
-# 결과 출력
 print(max_gold)
