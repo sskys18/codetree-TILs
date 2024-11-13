@@ -1,32 +1,48 @@
 # 변수 선언 및 입력
-n, t = map(int, input().split())
-l = list(map(int, input().split()))
-r = list(map(int, input().split()))
-d = list(map(int, input().split()))
+n, m, t = map(int, input().split())  # 행 수, 열 수, 바람이 부는 횟수
+matrix = [list(map(int, input().split())) for _ in range(n)]
+operations = [input().split() for _ in range(t)]
 
-# 포인터 초기화 (리스트의 첫 번째 요소를 가리킴)
-l_ptr, r_ptr, d_ptr = 0, 0, 0
+# 바람 연산 적용 함수
+def shift_row(row, direction):
+    if direction == 'L':
+        return row[1:] + row[:1]
+    elif direction == 'R':
+        return row[-1:] + row[:-1]
 
-for _ in range(t):
-    # Step 1: 현재 포인터가 가리키는 값을 통해 각 리스트의 가장 마지막 값을 가져옵니다.
-    temp_l = l[(l_ptr + n - 1) % n]
-    temp_r = r[(r_ptr + n - 1) % n]
-    temp_d = d[(d_ptr + n - 1) % n]
+def propagate(matrix, start_row, initial_direction, propagate_direction):
+    n, m = len(matrix), len(matrix[0])
+    curr_direction = initial_direction
 
-    # Step 2: 왼쪽 벨트에서 한 칸 이동
-    l_ptr = (l_ptr - 1) % n
-    l[l_ptr] = temp_d  # d의 마지막 값을 l의 처음 위치에 설정
+    row = start_row
+    while 0 <= row < n:
+        matrix[row] = shift_row(matrix[row], curr_direction)
+        next_row = row + propagate_direction
+
+        if next_row < 0 or next_row >= n:
+            break
+
+        # Check if propagation should continue
+        if any(matrix[row][col] == matrix[next_row][col] for col in range(m)):
+            # Switch direction
+            curr_direction = 'L' if curr_direction == 'R' else 'R'
+            row = next_row
+        else:
+            break
+
+# Process all wind operations
+for operation in operations:
+    r, d = int(operation[0]) - 1, operation[1]  # Adjust to 0-based index
+    direction = 'L' if d == 'L' else 'R'
+
+    # Initial row shift
+    matrix[r] = shift_row(matrix[r], direction)
     
-    # Step 3: 오른쪽 벨트에서 한 칸 이동
-    r_ptr = (r_ptr - 1) % n
-    r[r_ptr] = temp_l  # l의 마지막 값을 r의 처음 위치에 설정
-    
-    # Step 4: 아래 벨트에서 한 칸 이동
-    d_ptr = (d_ptr - 1) % n
-    d[d_ptr] = temp_r  # r의 마지막 값을 d의 처음 위치에 설정
+    # Propagate up
+    propagate(matrix, r - 1, 'L' if direction == 'R' else 'R', -1)
+    # Propagate down
+    propagate(matrix, r + 1, 'L' if direction == 'R' else 'R', 1)
 
 # 출력
-# 포인터 위치를 기준으로 실제 값 순서에 맞춰 출력
-print(" ".join(str(l[(l_ptr + i) % n]) for i in range(n)))
-print(" ".join(str(r[(r_ptr + i) % n]) for i in range(n)))
-print(" ".join(str(d[(d_ptr + i) % n]) for i in range(n)))
+for row in matrix:
+    print(" ".join(map(str, row)))
