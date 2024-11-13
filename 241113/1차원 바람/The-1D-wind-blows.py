@@ -1,47 +1,32 @@
 # 변수 선언 및 입력
-n, t = tuple(map(int, input().split()))
+n, t = map(int, input().split())
 l = list(map(int, input().split()))
 r = list(map(int, input().split()))
 d = list(map(int, input().split()))
 
+# 포인터 초기화 (리스트의 첫 번째 요소를 가리킴)
+l_ptr, r_ptr, d_ptr = 0, 0, 0
+
 for _ in range(t):
-    # Step 1
-    # 왼쪽에서 가장 오른쪽에 있는 숫자를 따로 temp값에 저장해놓습니다.
-    temp = l[n - 1]
+    # Step 1: 현재 포인터가 가리키는 값을 통해 각 리스트의 가장 마지막 값을 가져옵니다.
+    temp_l = l[(l_ptr + n - 1) % n]
+    temp_r = r[(r_ptr + n - 1) % n]
+    temp_d = d[(d_ptr + n - 1) % n]
+
+    # Step 2: 왼쪽 벨트에서 한 칸 이동
+    l_ptr = (l_ptr - 1) % n
+    l[l_ptr] = temp_d  # d의 마지막 값을 l의 처음 위치에 설정
     
-    # Step 2
-    # 왼쪽에 있는 숫자들을 완성합니다. 
-    # 벨트를 기준으로 오른쪽에서부터 채워넣어야 하며, 
-    # 맨 왼쪽 숫자는 아래에서 가져와야함에 유의합니다.
-    for i in range(n - 1, 0, -1):
-        l[i] = l[i - 1]
-    l[0] = d[n - 1]
+    # Step 3: 오른쪽 벨트에서 한 칸 이동
+    r_ptr = (r_ptr - 1) % n
+    r[r_ptr] = temp_l  # l의 마지막 값을 r의 처음 위치에 설정
     
-    # Step 3
-    # 오른쪽에 있는 숫자들을 완성합니다. 
-    # 벨트를 기준으로 마찬가지로 오른쪽에서부터 채워넣어야 하며, 
-    # 맨 왼쪽 숫자는 이전 단계에서 미리 저장해놨던 temp값을 가져와야함에 유의합니다.
-    temp2 = r[n - 1]
-    for i in range(n - 1, 0, -1):
-        r[i] = r[i - 1]
-    r[0] = temp
-    
-    # Step 4
-    # 아래에 있는 숫자들을 완성합니다. 
-    # 마찬가지로 벨트를 기준으로 오른쪽에서부터 채워넣어야 하며, 
-    # 맨 왼쪽 숫자는 이전 단계에서 미리 저장해놨던 temp값을 가져와야함에 유의합니다.
-    for i in range(n - 1, 0, -1):
-        d[i] = d[i - 1]
-    d[0] = temp2
-    
+    # Step 4: 아래 벨트에서 한 칸 이동
+    d_ptr = (d_ptr - 1) % n
+    d[d_ptr] = temp_r  # r의 마지막 값을 d의 처음 위치에 설정
+
 # 출력
-for elem in l:
-    print(elem, end=" ")
-print()
-
-for elem in r:
-    print(elem, end=" ")
-print()
-
-for elem in d:
-    print(elem, end=" ")
+# 포인터 위치를 기준으로 실제 값 순서에 맞춰 출력
+print(" ".join(str(l[(l_ptr + i) % n]) for i in range(n)))
+print(" ".join(str(r[(r_ptr + i) % n]) for i in range(n)))
+print(" ".join(str(d[(d_ptr + i) % n]) for i in range(n)))
